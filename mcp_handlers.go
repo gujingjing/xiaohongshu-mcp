@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -86,14 +85,9 @@ func (s *AppServer) handleGetLoginQrcode(ctx context.Context) *MCPToolResult {
 		return now.Add(d).Format("2006-01-02 15:04:05")
 	}()
 
-	// 已登录：文本 + 图片
+	// 返回文字提醒，不返回图片（避免模型无法处理图片导致会话崩溃）
 	contents := []MCPContent{
-		{Type: "text", Text: "请用小红书 App 在 " + deadline + " 前扫码登录 👇"},
-		{
-			Type:     "image",
-			MimeType: "image/png",
-			Data:     strings.TrimPrefix(result.Img, "data:image/png;base64,"),
-		},
+		{Type: "text", Text: "⚠️ 当前未登录小红书，请在 " + deadline + " 前完成扫码登录。\n请打开小红书 MCP 的 Web 管理页面进行扫码，或使用命令行工具获取二维码。"},
 	}
 	return &MCPToolResult{Content: contents}
 }
